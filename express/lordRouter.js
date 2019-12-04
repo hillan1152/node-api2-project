@@ -120,6 +120,54 @@ router.post('/:id/comments', (req, res) => {
     }
 }) 
 
+
+// PUT REQUEST
+// When the client makes a PUT request to /api/posts/:id:
+// If the post with the specified id is not found:
+//      return HTTP status code 404 (Not Found).
+//      return the following JSON object: { message: "The post with the specified ID does not exist." }
+// If the request body is missing the title or contents property:
+    // cancel the request.
+    // respond with HTTP status code 400 (Bad Request).
+    // return the following JSON response: { errorMessage: "Please provide title and contents for the       post." }.
+// If there's an error when updating the post:
+    // cancel the request.
+    // respond with HTTP status code 500.
+    // return the following JSON object: { error: "The post information could not be modified." }.
+// If the post is found and the new information is valid:
+    // update the post document in the database using the new information sent in the request body.
+    // return HTTP status code 200 (OK).
+    // return the newly updated post.
+router.put('/:id', (req, res) => {
+    const id = req.params.id;
+    const postData = req.body;
+
+    db.findById(id)
+        .then(post => {
+            if(!post){
+                res.status(404).json({ message: "The post with the specified ID does not exist." })
+            } else if (!postData.title || !postData.contents){
+                res.status(400).json({ errorMessage: "Please provide title and contents for the       post." })
+            } else {
+                db.update(id, postData)
+                    .then(update => {
+                        res.status(200).json({...update, ...postData})
+                    })
+                    .catch(err => {
+                        console.log('ERROR With PUT', err)
+                        res.status(500).json({ error: "The post information could not be modified." })
+                    })
+            }
+        })
+        .catch(err => {
+            console.log('PUT IS RUINED', err)
+        })
+})
+
+
+
+
+
 // DELETE REQUEST
 
 // export router
