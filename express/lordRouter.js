@@ -41,7 +41,53 @@ router.get('/:id', (req, res) => {
 
 // GET Request for Comments
 router.get('/:id/comments', (req, res) => {
-    console.log(req.body)
+    const id = req.params.id;
+    const data = req.body;
+
+    db.findPostComments(data.text)
+        .then(comment => {
+            if(comment.length > 0) {
+                res.status(200).json(data.text)
+            } else {
+                db.findById(id)
+                    .then(post => {
+                        if(post.length > 0){
+                            res.status(404).json({
+                                message: "The post with the specified ID does not contain comments."
+                            });
+                        } else {
+                            res.status(404).json({ message: "The post with the specified ID does not exist."
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({ error: "The post information could not be retrieved. " 
+                        });
+                    });
+            }
+        })
+        .catch((err => {
+            res.status(500).json({ error: "The comments information could not be retrieved." })
+        }))
+})
+
+// POST Request
+router.post('/', (req, res) => {
+    const dbData = req.body;
+    console.log(dbData)
+    if(!dbData.title || !dbData.contents) {
+        res.status(400).json({ errorMessage: "Please provide title and contents for the post." })
+    } else {
+        db.insert(dbData)
+            .then(post => {
+                res.status(201).json({...post, ...dbData })
+            })
+            .catch(err => {
+                console.log('POST Req Err', err)
+                res.status(500).json({ error: "There was an error while saving the post to the database" })
+            })
+    }
 })
 
 // DELETE REQUEST
