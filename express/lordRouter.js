@@ -42,34 +42,30 @@ router.get('/:id', (req, res) => {
 // GET Request for Comments
 router.get('/:id/comments', (req, res) => {
     const id = req.params.id;
-    const data = req.body;
-
-    db.findPostComments(data.text)
+    const commentData = req.body;
+    
+    db.findPostComments(id)
         .then(comment => {
-            if(comment.length > 0) {
-                res.status(200).json(data.text)
+            console.log('This is comment', comment[0].post_id)
+            if(comment && comment[0].post_id){
+                res.status(200).json({comment})
             } else {
-                db.findById(id)
-                    .then(post => {
-                        if(post.length > 0){
-                            res.status(404).json({
-                                message: "The post with the specified ID does not contain comments."
-                            });
-                        } else {
-                            res.status(404).json({ message: "The post with the specified ID does not exist."
-                            });
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).json({ error: "The post information could not be retrieved. " 
-                        });
-                    });
+                res.status(404).json({errorMessage: "The post with the specified ID does not exist."})
             }
         })
-        .catch((err => {
-            res.status(500).json({ error: "The comments information could not be retrieved." })
-        }))
+        .catch(err => {
+            res.status(500).json({ error: "The posts information could not be retrieved." })
+        })
+
+
+    // db.findPostComments(id)
+    //     .then(comment => {
+    //         if(comment.length !== 0){
+    //             console.log('COMMENT', comment)
+    //             res.status(200).json({comment.text})
+    //     .catch(err => {
+    //         res.status(500).json({ error: "The comments information could not be retrieved."})
+    // })
 })
 
 // POST Request
