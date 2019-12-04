@@ -39,41 +39,12 @@ router.get('/:id', (req, res) => {
         })
 })
 
-// POST Request for adding info inside of the request body
-router.post('/', (req, res) => {
+// GET Request for Comments
+router.get('/:id/comments', (req, res) => {
     console.log(req.body)
-    if(!req.body.title || !req.body.contents){
-        res.status(400).json({ errorMessage: "Please provide title and contents for the post." })
-    } else {
-    db.insert(req.body)
-        .then(data => {
-            res.status(201).json({...req.body, data})
-        })
-        .catch(err => {
-            console.log('Post Request Error', err)
-            res.status(500).json({ error: "There was an error while saving the post to the database" })
-        })
-    }
-})
-// POST FOR COMMENTS AND :ID REQUESTS
-// NEEDS WORK
-router.post('/:id/comments', (req, res) => {
-    if(!req.params.id){
-        res.status(404).json({ message: "The post with the specified ID does not exist." })
-    } else if (!req.body.text) {
-        res.status(400).json({ errorMessage: "Please provide text for the comment." })
-    } else {
-        db.insertComment(req.body)
-        .then(comment => {
-            res.status(201).json({...req.body, comment})
-        })
-        .catch(err => {
-            console.log('Post Request Error', err)
-            res.status(500).json({ error: "There was an error while saving the post to the database" })
-        })
-    }
 })
 
+// DELETE REQUEST
 
 // export router
 module.exports = router;
